@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test du service /api/maths</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test du service /api/maths</h1>
+
+    <fieldset>
+        <legend>Url du service</legend>
+
+        <label for="service-url">Url du service:</label>
+        <input type="text" id="service-url" title="Enter the service URL" placeholder="Enter the service URL" value="localhost:5000/api/maths" size="50" />
+        
+        <br><br>
+        
+        <button onclick="demarrerLeTest()">Démarrer le test</button>
+    </fieldset>
+
+    <fieldset>
+        <legend>Résultat</legend>
+        <div id="result"></div>
+        <div id="result"></div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Verdit</legend>
+    </fieldset>
+    <script>
+        async function demarrerLeTest() {
+            const url = document.getElementById('service-url').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "Test en cours...\n";
+    
+            let tests;
+            try {
+                const response = await fetch('Test.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                tests = await response.json();
+            } catch (error) {
+                resultDiv.innerHTML += `Erreur lors du chargement des tests: ${error.message}\n\n`;
+                return;
+            }
+            
+            // Exécuter les tests
+            for (const test of tests) {
+                try {
+                    const queryParams = new URLSearchParams(test).toString();
+                    const response = await fetch(`${url}?${queryParams}`);
+                    const data = await response.json();
+                    
+                    // Afficher le résultat
+                    resultDiv.innerHTML += `Test ---> ${JSON.stringify(test)}\nRésultat ---> ${JSON.stringify(data)}\n\n`;
+                } catch (error) {
+                    resultDiv.innerHTML += `Erreur lors du test ${JSON.stringify(test)}: ${error.message}\n\n`;
+                }
+            }
+            
+            resultDiv.innerHTML += "Bravo!!! Aucun problème\n";
+        }
+    </script>
+    
+</body>
+</html>
